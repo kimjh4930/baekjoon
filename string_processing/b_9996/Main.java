@@ -17,6 +17,11 @@ public class Main {
 		for(int i=0; i<n; i++) {
 			temp = scan.nextLine();
 			
+			if(temp.length() < fixes[0].length() + fixes[1].length()) {
+				System.out.println("NE");
+				continue next;
+			}
+			
 			for(int prefix=0; prefix<fixes[0].length(); prefix++) {
 				if(fixes[0].charAt(prefix) != temp.charAt(prefix)) {
 					System.out.println("NE");
