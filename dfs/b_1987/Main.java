@@ -1,13 +1,19 @@
 package dfs.b_1987;
 
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Main {
 	
 	static char[][] map = new char[20][20];
+	static Set<Character> sortSet = new HashSet<>();
 	
 	static int[] dx = {0, 1, 0, -1};
 	static int[] dy = {-1, 0, 1, 0};
+	
+	static boolean[][] visitedMap = new boolean[20][20];
+	static boolean[] alpha = new boolean[26];
 	
 	static int R, C;
 	static int max = -1;
@@ -25,49 +31,26 @@ public class Main {
 			input = scan.nextLine();
 			for(int j=0; j<C; j++) {
 				map[i][j] = input.charAt(j);
+				sortSet.add(map[i][j]);
 			}
 		}
-		
-		boolean[][] visitedMap = new boolean[20][20];
-		boolean[] alpha = new boolean[26];
-		
-		dfs(0, 0, visitedMap, alpha, 1);
+		visitedMap[0][0] = true;
+		alpha[map[0][0] - 'A'] = true;
+		dfs(0, 0, 1);
 		System.out.println(max);
 		
 		scan.close();
 	}
 	
-	static void dfs (int x, int y, boolean[][] visitedMap, boolean[] alpha, int count) {
-		boolean[][] tempMap = copyMap(visitedMap);
-		boolean[] tempAlpha = copyStatus(alpha);
+	static void dfs (int x, int y, int count) {
 		
-		tempMap[y][x] = true;
-		tempAlpha[map[y][x] - 'A'] = true;
-		
-//		for(int i=0; i<R; i++) {
-//			for(int j=0; j<C; j++) {
-//				if(tempMap[i][j]) {
-//					System.out.print("1 ");
-//				}else {
-//					System.out.print("0 ");
-//				}
-//			}
-//			System.out.println("");
-//		}
-		
-		int cnt = 0;
-		
-		for(int i=0; i<26; i++) {
-			if(tempAlpha[i]) {
-				cnt++;
-			}
+		if(count > max) {
+			max = count;
 		}
 		
-		if(cnt == 26) {
-			max = 26;
+		if(max == sortSet.size()) {
 			return;
 		}
-		
 		
 		int temp_x, temp_y;
 		
@@ -75,39 +58,17 @@ public class Main {
 			temp_x = x + dx[i];
 			temp_y = y + dy[i];
 			
-			if(temp_x>=0 && temp_x<C && temp_y>=0 && temp_y<R && tempMap[temp_y][temp_x] == false) {
-				if(tempAlpha[map[temp_y][temp_x] - 'A'] == false) {
-					dfs(temp_x, temp_y, tempMap, tempAlpha, count+1);
+			if(temp_x>=0 && temp_x<C && temp_y>=0 && temp_y<R && visitedMap[temp_y][temp_x] == false) {
+				if(alpha[map[temp_y][temp_x] - 'A'] == false) {
+					alpha[map[temp_y][temp_x] - 'A'] = true;
+					visitedMap[temp_y][temp_x] = true;
+					dfs(temp_x, temp_y, count+1);
 				}
 			}
 		}
 		
-		if(count > max) {
-			max = count;
-		}
-		return;
-	}
-	
-	static boolean[][] copyMap (boolean[][] visitedMap) {
-		boolean[][] temp = new boolean[R][C];
-		
-		for(int i=0; i<R; i++) {
-			for(int j=0; j<C; j++) {
-				temp[i][j] = visitedMap[i][j];
-			}
-		}
-		
-		return temp;
-	}
-	
-	static boolean[] copyStatus (boolean[] alpha) {
-		boolean[] temp = new boolean[26];
-		
-		for(int i=0; i<26; i++) {
-			temp[i] = alpha[i];
-		}
-		
-		return temp;
+		visitedMap[y][x] = false;
+		alpha[map[y][x] - 'A'] = false;
 	}
 	
 	static void printMap () {
