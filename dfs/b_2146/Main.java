@@ -21,8 +21,6 @@ public class Main {
 	
 	static Map<Integer, Queue<Point>> beachMap = new HashMap<>();
 	
-	static int[][] connectedMap;
-	
 	static int N;
 	static int min = (1<<31) - 1;
 	
@@ -42,9 +40,9 @@ public class Main {
 		for(int i=0; i<N; i++) {
 			for(int j=0; j<N; j++) {
 				if(map[i][j] != 0 && visited[i][j] == false) {
-					System.out.println(i + ", " + j);
 					count++;
 					visited[i][j] = true;
+					groupMap[i][j] = count;
 					queue.offer(new Point(j, i));
 					bfs(count);
 				}
@@ -54,7 +52,7 @@ public class Main {
 		queue.clear();
 		tempQueue.clear();
 		
-		printMap();
+//		printMap();
 		
 		Iterator<Integer> iter = beachMap.keySet().iterator();
 		int idx;
@@ -64,6 +62,9 @@ public class Main {
 			queue = beachMap.get(idx);
 			clearVisited();
 			tempQueue.clear();
+			
+			visited[queue.peek().y][queue.peek().x] = true;
+			
 			beachBfs(idx);
 			
 //			bridgeMap();
@@ -95,13 +96,10 @@ public class Main {
 						groupMap[temp_y][temp_x] = count;
 						Point nextP = new Point(temp_x, temp_y);
 						tempQueue.offer(nextP);
-						
-						//해안가인지 판단함.
-						for(int j=0; j<4; j++) {
-							if(checkRange(temp_x+dx[j], temp_y+dy[j]) && map[temp_y+dy[j]][temp_x+dx[j]] == 0) {
-								beachQueue.offer(nextP);
-								break;
-							}
+					}else {
+						// 현재 위치에서 해안가인지 아닌지 판단한다.
+						if(!beachQueue.contains(p)) {
+							beachQueue.offer(p);
 						}
 					}
 				}
