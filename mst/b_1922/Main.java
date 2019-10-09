@@ -1,83 +1,98 @@
 package mst.b_1922;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 public class Main {
 	
-	static int N, M;
-	
-	static int[][] map = new int[1001][1001];
+	static int map[][] = new int[1001][1001];
 	static boolean[] visited = new boolean[1001];
 	
-	static List<Point> pointList = new ArrayList<>();
+	static int N, M, cost;
+	
+	static PriorityQueue<Point> pq = new PriorityQueue<>();
 	
 	public static void main(String args[]) {
+		
 		Scanner scan = new Scanner(System.in);
 		
 		N = scan.nextInt();
 		M = scan.nextInt();
 		
-		int n, m, c;
+		int start, end;
 		
-		for(int i=0; i<M; i++) {
-			n = scan.nextInt();
-			m = scan.nextInt();
-			c = scan.nextInt();
-			
-			map[n][m] = c;
+		for(int i=1; i<=M; i++) {
+			start = scan.nextInt();
+			end = scan.nextInt();
+			map[start][end] = map[end][start] = scan.nextInt();
 		}
 		
+		int sum = 0;
+		Point temp;
 		visited[1] = true;
 		
-		Point p;
-		int k=0;
-		int sum = 0;
+		boolean visitAll = true;
 		
 		for(int i=1; i<=N; i++) {
-			for(int j=1; j<=N; j++) {
-				pointList.add(new Point(i, j, map[i][j]));
+			if(map[1][i] != 0) {
+				pq.offer(new Point(1, i, map[1][i]));
+//				System.out.println("i : " + i);
+			}
+		}
+		
+		poll:
+		while(!pq.isEmpty()) {
+			
+			visitAll = true;
+			
+			for(int i=1; i<=N; i++) {
+				visitAll &= visited[i];
 			}
 			
-			pointList.sort(new SortList());
+			if(visitAll) {
+				break;
+			}
 			
-			while(true) {
-				
-				if(visited[pointList.get(k).m] == false) {
-					visited[pointList.get(k).m] = true;
-					sum = 0;
-					break;
+			temp = pq.poll();
+			
+			if(visited[temp.end] == true) {
+				continue poll;
+			}
+			
+//			System.out.println("(" + temp.start + ", " + temp.end + ") : " + temp.cost);
+			
+			visited[temp.end] = true;
+			sum += temp.cost;
+			
+//			System.out.println(temp.end);
+
+			for(int i=1; i<=N; i++) {
+				if(map[temp.end][i] != 0) {
+					pq.offer(new Point(temp.end, i, map[temp.end][i]));
 				}
-				k++;
 			}
 			
 		}
 		
+		System.out.println(sum);
 		scan.close();
 	}
 
 }
 
-class Point {
-	int n, m, c;
+class Point implements Comparable<Point>{
 	
-	public Point(int n, int m, int c) {
-		this.n = n;
-		this.m = m;
-		this.c = c;
+	int start, end, cost;
+	
+	public Point(int start, int end, int cost) {
+		this.start = start;
+		this.end = end;
+		this.cost = cost;
 	}
-}
-
-class SortList implements Comparator<Point>{
 
 	@Override
-	public int compare(Point o1, Point o2) {
-		
-		return o1.c > o2.c ? 1 : -1;
+	public int compareTo(Point o) {
+		return this.cost < o.cost ? -1 : 1;
 	}
 	
 }
