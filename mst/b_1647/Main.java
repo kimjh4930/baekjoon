@@ -39,7 +39,7 @@ public class Main {
 			}
 			
 			map.get(start).add(new Point(start, end, cost));
-			map.get(end).add(new Point(start, end, cost));
+			map.get(end).add(new Point(end, end, cost));
 		}
 		
 		visited[1] = true;
@@ -75,7 +75,9 @@ public class Main {
 			sum += (long)temp.cost;
 			
 			for(Point p : map.get(temp.end)) {
-				pq.offer(p);
+				if(visited[p.end] == false) {
+					pq.offer(p);
+				}
 			}
 		}
 		
