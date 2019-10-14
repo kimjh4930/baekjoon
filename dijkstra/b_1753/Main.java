@@ -1,6 +1,5 @@
 package dijkstra.b_1753;
 
-import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +14,6 @@ public class Main {
 	
 	static Map<Integer, List<Node>> nodeMap = new HashMap<>();
 	static PriorityQueue<Node> pq = new PriorityQueue<>();
-	static PriorityQueue<Node> temppq = new PriorityQueue<>();
 	
 	static int N, M, start;
 	
@@ -35,7 +33,6 @@ public class Main {
 		
 		int from, to, cost;
 		
-		next:
 		for(int i=0; i<M; i++) {
 			from = scan.nextInt();
 			to = scan.nextInt();
@@ -44,23 +41,11 @@ public class Main {
 			if(!nodeMap.containsKey(from)) {
 				nodeMap.put(from, new ArrayList<>());
 			}
-			
-			List<Node> tempList = nodeMap.get(from);
-			
-			//중복체크.
-			for(Node t : tempList) {
-				if(t.from == from && t.to == to) {
-					if(t.cost > cost) {
-						t.cost = cost;
-					}
-					continue next;
-				}
-			}
-			
-			nodeMap.get(from).add(new Node(from, to, cost));
+			nodeMap.get(from).add(new Node(to, cost));
 		}
 		
-		djikstra();
+		dist[start] = 0;
+		djikstra(start);
 		
 		for(int i=1; i<=N; i++) {
 			if(dist[i] == INF) {
@@ -73,42 +58,29 @@ public class Main {
 		scan.close();
 	}
 	
-	static void djikstra() {
+	static void djikstra (int start) {
 		
-		List<Node> nodeList = nodeMap.get(start);
-		dist[start] = 0;
-		
-		for(Node node : nodeList) {
-			pq.offer(node);
-		}
-		
-		Node node;
-		int from, to, cost;
+		Node temp;
+		List<Node> nodeList;
+		pq.offer(new Node(start, 0));
 		
 		while(!pq.isEmpty()) {
-			node = pq.poll();
+			temp = pq.poll();
 			
-			from = node.from;
-			to = node.to;
-			cost = node.cost;
+			nodeList = nodeMap.get(temp.to);
 			
-			System.out.println("(" + from + ", " + to + ", " + cost + "), " + dist[from] + ", " + dist[to]);
-			
-			if(dist[from] + cost < dist[to] ) {
-				dist[to] = dist[from] + cost;
-				temppq.offer(new Node(start, to, dist[to]));
-				if(nodeMap.get(to) != null) {
-					for(Node n : nodeMap.get(to)) {
-						if(!temppq.contains(n)) {
-							temppq.offer(n);
-						}
-					}
-				}
+			if(nodeList == null) {
+				continue;
 			}
 			
-			if(pq.isEmpty()) {
-				pq.addAll(temppq);
-				temppq.clear();
+			for(Node node : nodeList) {
+				int newVal = dist[temp.to] + node.cost;
+				int beforeVal = dist[node.to];
+				
+				if(newVal < beforeVal) {
+					dist[node.to] = dist[temp.to] + node.cost;
+					pq.offer(new Node(node.to, dist[node.to]));
+				}
 			}
 		}
 	}
@@ -116,10 +88,9 @@ public class Main {
 
 class Node implements Comparable<Node>{
 
-	int from, to ,cost;
+	int to ,cost;
 	
-	public Node (int from, int to, int cost) {
-		this.from = from;
+	public Node (int to, int cost) {
 		this.to = to;
 		this.cost = cost;
 	}
